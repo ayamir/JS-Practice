@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Dash Test</title>
+    <style type="text/css">
+      body {
+        margin: 0;
+        background-color: #eceff4;
+      }
+      canvas {
+        display: block;
+      }
+      video {
+        width: 100%;
+      }
+
+      #manifest {
+        width: 300px;
+      }
+
+      #fragmentsEntry,
+      #secondsEntry {
+        position: relative;
+        display: none;
+        width: 50px;
+      }
+
+      #delayInFragments,
+      #delayInSeconds {
+        width: 50px;
+      }
+
+      .clock {
+        color: #000;
+        font-size: 60pt;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          onclick="delaySelect(this)"
+          value="default"
+          type="radio"
+          name="delay"
+          id="default"
+          checked
+        />
+        <label class="form-check-label" for="default"> Default </label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          onclick="delaySelect(this)"
+          value="segments"
+          type="radio"
+          name="delay"
+          id="segments"
+        />
+        <label class="form-check-label" for="segments"> Fragment Count: </label>
+        <div id="fragmentsEntry">
+          <input id="delayInFragments" type="text" /> <br />
+        </div>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          onclick="delaySelect(this)"
+          value="time"
+          type="radio"
+          name="delay"
+          id="time"
+        />
+        <label class="form-check-label" for="time"> Time in seconds: </label>
+        <div id="secondsEntry">
+          <input id="delayInSeconds" type="text" /><br />
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1">Manifest URL</span>
+        <input
+          type="text"
+          id="manifest"
+          class="form-control"
+          placeholder="MPD URL"
+          value="https://livesim.dashif.org/livesim/testpic_2s/Manifest.mpd"
+          aria-label="Username"
+          aria-describedby="basic-addon1"
+        />
+        <button
+          type="button"
+          id="loadButton"
+          class="btn btn-success"
+          onclick="load(this)"
+        >
+          Load stream
+        </button>
+      </div>
+      <video controls="true"></video>
+    </div>
+    <script src="http://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <script>
+      var player,
+        firstLoad = true;
+
+      function init() {
+        setInterval(function () {
+          if (player && player.isReady()) {
+            var d = new Date();
+            var seconds = d.getSeconds();
+            document.querySelector("#sec").innerHTML =
+              (seconds < 10 ? "0" : "") + seconds;
+            var minutes = d.getMinutes();
+            document.querySelector("#min").innerHTML =
+              (minutes < 10 ? "0" : "") + minutes + ":";
+            document.querySelector("#videoDelay").innerHTML = Math.round(
+              d.getTime() / 1000 - Number(player.timeAsUTC())
+            );
+            document.querySelector("#videoBuffer").innerHTML =
+              player.getBufferLength() + "s";
+          }
+        }, 1000);
+      }
+
+      function load(button) {
+        if (!firstLoad) {
+          player.reset();
+        }
+        firstLoad = false;
+        var url = document.getElementById("manifest").value;
+        player = dashjs.MediaPlayer().create();
+        player.updateSettings({
+          debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE },
+        });
+        player.extend("RequestModifier", function () {
+          return {
+            modifyRequestHeader: function (xhr) {
+              // Add custom header. Requires to set up Access-Control-Allow-Headers in your
+              // response header in the server side. Reference: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader
+              // xhr.setRequestHeader('DASH-CUSTOM-HEADER', 'MyValue');
+              xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+              return xhr;
+            },
+            modifyRequestURL: function (url) {
+              // Modify url adding a custom query string parameter
+              return url;
+            },
+          };
+        });
+
+        switch (document.querySelector('input[name="delay"]:checked').value) {
+          case "segments":
+            player.updateSettings({
+              streaming: {
+                delay: {
+                  liveDelayFragmentCount:
+                    document.querySelector("#delayInFragments").value,
+                },
+              },
+            });
+
+            break;
+          case "time":
+            player.updateSettings({
+              streaming: {
+                delay: {
+                  liveDelay: document.querySelector("#delayInSeconds").value,
+                },
+              },
+            });
+            break;
+        }
+        player.initialize(document.querySelector("video"), url, true);
+      }
+
+      function delaySelect(obj) {
+        switch (obj.value) {
+          case "default":
+            document.querySelector("#fragmentsEntry").style.display = "none";
+            document.querySelector("#secondsEntry").style.display = "none";
+            break;
+          case "segments":
+            document.querySelector("#fragmentsEntry").style.display = "inline";
+            document.querySelector("#secondsEntry").style.display = "none";
+            break;
+          case "time":
+            document.querySelector("#fragmentsEntry").style.display = "none";
+            document.querySelector("#secondsEntry").style.display = "inline";
+            break;
+        }
+      }
+    </script>
+  </body>
+</html>
