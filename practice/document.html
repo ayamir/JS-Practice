@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>document.write() example</title>
+  </head>
+  <body>
+    <p>
+      The current date and time is:
+      <script>
+        document.write("<strong>" + new Date().toString() + "</strong>");
+        document.write('<script src=".\/src/function.js">' + "<\/script>");
+      </script>
+    </p>
+    <script>
+      window.onload = function () {
+        document.write("Hello, World!");
+      };
+    </script>
+  </body>
+</html>
