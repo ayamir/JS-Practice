@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Element Example</title>
+  </head>
+  <body>
+    <div
+      id="myDiv"
+      class="bd"
+      title="Body text"
+      lang="en"
+      dir="ltr"
+      my_attr="myAttribute"
+    >
+      divElementExample
+    </div>
+    <script type="text/javascript">
+      function outputAttributes(element) {
+        var pairs = new Array(),
+          attrName,
+          attrValue,
+          i,
+          len;
+
+        for (i = 0, len = element.attributes.length; i < len; i++) {
+          attrName = element.attributes[i].nodeName;
+          attrValue = element.attributes[i].nodeValue;
+          if (element.attributes[i].specified) {
+            pairs.push(attrName + '="' + attrValue + '"');
+          }
+        }
+        return pairs.join(" ");
+      }
+
+      let lg = window.console.log;
+      var div = document.getElementById("myDiv");
+      // direct access
+      lg(div.tagName);
+      lg(div.tagName == div.nodeName);
+      lg(div.id);
+      lg(div.className);
+      lg(div.lang);
+      lg(div.dir);
+
+      // modify
+      div.id = "newID";
+      lg(div.id);
+
+      // use getAttribute
+      lg(div.getAttribute("id"));
+      lg(div.getAttribute("class"));
+      lg(div.getAttribute("title"));
+      lg(div.getAttribute("lang"));
+      lg(div.getAttribute("dir"));
+      // don't distinguish uppercase from lowercase
+      lg(div.getAttribute("my_Attr"));
+
+      // use setAttribute
+      div.setAttribute("id", "newIDSetByMethod");
+      lg(div.getAttribute("id"));
+
+      // use removeAttribute
+      div.removeAttribute("lang");
+      lg(div.getAttribute("lang"));
+
+      lg(outputAttributes(div));
+
+      var newDiv = document.createElement("div");
+      newDiv.id = "newDiv";
+      newDiv.className = "box";
+      var textNode = document.createTextNode("Hello World");
+      newDiv.appendChild(textNode);
+      var anotherTextNode = document.createTextNode("Another");
+      newDiv.appendChild(anotherTextNode);
+      document.body.appendChild(newDiv);
+      lg(outputAttributes(newDiv));
+
+      lg(newDiv.childNodes.length);
+      newDiv.normalize();
+      lg(newDiv.childNodes.length);
+
+      var newNode = newDiv.firstChild.splitText(5);
+      lg(newDiv.firstChild.nodeValue);
+      lg(newNode.nodeValue);
+      lg(newDiv.childNodes.length);
+    </script>
+  </body>
+</html>
