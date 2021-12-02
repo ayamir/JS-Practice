@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Event example</title>
+  </head>
+  <body>
+    <input id="inputBtn" type="button" value="Click me" />
+    <script>
+      let lg = window.console.log;
+      var inputBtn = document.getElementById("inputBtn");
+      // DOM0 level
+      inputBtn.onclick = function () {
+        alert("Clicked");
+        lg(this.value);
+        lg(this.type);
+      };
+      inputBtn.onclick = null;
+      // DOM2 level
+      var bubbleHandler = function () {
+        alert("Clicked");
+        lg(this.value);
+        lg(this.type);
+      };
+      // don't recommand captureHandler
+      var captureHandler = function () {
+        alert("Hello");
+      };
+      inputBtn.addEventListener(
+        "click",
+        // bubble period
+        bubbleHandler,
+        false
+      );
+      inputBtn.addEventListener(
+        "click",
+        // capture period
+        captureHandler,
+        true
+      );
+      inputBtn.removeEventListener("click", bubbleHandler, false);
+      inputBtn.removeEventListener("click", captureHandler, true);
+    </script>
+  </body>
+</html>
