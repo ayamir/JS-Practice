@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>XHR test</title>
+  </head>
+  <body>
+    <script>
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", "canvas.html", false);
+      xhr.send(null);
+
+      if ((xhr.status >= 200 && xhr.status <= 300) || xhr.status == 304) {
+        alert(xhr.responseText);
+      } else {
+        alert("Request was unsuccessful: " + xhr.status);
+      }
+    </script>
+  </body>
+</html>
